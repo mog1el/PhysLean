@@ -21,7 +21,7 @@ structure IdealFluid where
   entropy: Time → Space → ℝ
   enthlapy: Time → Space → ℝ
 
-  density_pos: ∀ t, pos 0 < density t pos
+  density_pos: ∀ t pos, 0 < density t pos
 
   /-- Ensuring that all are differentiable for more complex equations. -/
   density_contdiff: ContDiff ℝ 1 ( fun(s:Time × Space)=>density s.1 s.2)
@@ -32,13 +32,12 @@ structure IdealFluid where
   enthlapy_contdiff: ContDiff ℝ 1 ( fun(s:Time × Space)=>enthlapy s.1 s.2)
 
 namespace IdealFluid
-
+open MeasureTheory
 /-!
 Here lays defined:
   the mass flux density
   entropy flux density
   energy flux density
-  flow out of a volume
 -/
 
 def massFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
@@ -58,6 +57,30 @@ noncomputable def energyFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
 
       scalar • v
 
-/-Still a need to introduce flow out of volume-/
+/-I hereby describe the:
+FluidVolume structure
+surface integral
+flow out of volume-/
+
+structure FluidVolume where
+  region: Set Space
+  normal: Space → EuclideanSpace ℝ (Fin 3)
+  surfaceMeasure: Measure Space
+
+noncomputable def surfaceIntegral (V: FluidVolume) (flux: Space → EuclideanSpace ℝ (Fin 3)):
+    ℝ :=
+      ∫ (pos: Space) in frontier V.region, ⟪flux pos, V.normal pos⟫_ℝ ∂V.surfaceMeasure
+
+noncomputable def massFlowOut (F: IdealFluid) (t: Time) (V: FluidVolume):
+    ℝ :=
+      surfaceIntegral V (fun pos => IdealFluid.massFluxDensity F t pos)
+
+noncomputable def entropyFlowOut (F: IdealFluid) (t: Time) (V: FluidVolume):
+    ℝ :=
+      surfaceIntegral V (fun pos => IdealFluid.entropyFluxDensity F t pos)
+
+noncomputable def energyFlowOut (F: IdealFluid) (t: Time) (V: FluidVolume):
+    ℝ :=
+      surfaceIntegral V (fun pos => IdealFluid.energyFluxDensity F t pos)
 
 end IdealFluid
