@@ -317,32 +317,6 @@ lemma HermitianMat.inner_le_trace_rpow_mul
     · field_simp at hpq
       nlinarith
 
-/-
-PROBLEM
-Trace subadditivity (Rotfeld's inequality): for PSD A, B and 0 < p ≤ 1,
-Tr[(A + B)^p] ≤ Tr[A^p] + Tr[B^p].
-
-PROVIDED SOLUTION
-Use trace_rpow_eq_sum to express each side as sums of eigenvalues.
-Then use the operator concavity of x^p on [0,∞) for 0 < p ≤ 1.
-
-More specifically, use the CFC approach: since x ↦ x^p is concave on [0,∞),
-by the Loewner-Heinz theorem / operator concavity:
-  (A + B)^p ≤ A^p + B^p  (as operators)
-for 0 < p ≤ 1 and A, B ≥ 0. This is exactly HermitianMat.cfc_concave_le
-(if available) or can be proved from the operator concavity of t^p.
-
-Taking traces preserves the ordering since trace is monotone on PSD matrices.
-So Tr[(A+B)^p] ≤ Tr[A^p + B^p] = Tr[A^p] + Tr[B^p].
-
-I DON'T THINK THIS IS ACTUALLY NEEDED.
--/
-lemma HermitianMat.trace_rpow_add_le
-    (A B : HermitianMat d ℂ) (hA : 0 ≤ A) (hB : 0 ≤ B)
-    (p : ℝ) (hp : 0 < p) (hp1 : p ≤ 1) :
-    ((A + B) ^ p).trace ≤ (A ^ p).trace + (B ^ p).trace := by
-  sorry
-
 lemma MState.rpow_le_one' {r : ℝ} (hσ : 0 < r) : σ.M ^ r ≤ 1 := by
   rw [HermitianMat.le_iff]
   have h1 : 1 - σ.M ^ r = σ.M.cfc (fun x => 1 - x ^ r) := by
@@ -402,12 +376,68 @@ lemma HermitianMat.trace_rpow_le_trace_of_le_one
     · exact A.eigenvalues_le_one_of_le_one hA1 i
     · exact hp
 
-/-- Araki-Lieb-Thirring inequality for 0 < q ≤ 1: Tr[(B^r A B^r)^q] ≤ Tr[B^{rq} A^q B^{rq}]. -/
-private lemma araki_lieb_thirring_le_one
-    (A B : HermitianMat d ℂ) (hA : 0 ≤ A) (hB : 0 ≤ B)
-    (r q : ℝ) (hq0 : 0 < q) (hq1 : q ≤ 1) :
-    ((A.conj (B ^ r).mat) ^ q).trace ≤ ((A ^ q).conj (B ^ (r * q)).mat).trace := by
-  sorry
+private lemma trace_conj_rpow_eq_inner (hα₀ : 0 < α) (hα : α < 1) :
+    ((ρ.M ^ α).conj (σ.M ^ ((1 - α) / (2 * α) * α)).mat).trace = ⟪ρ.M ^ α, σ.M ^ (1 - α)⟫_ℝ := by
+  convert congr_arg _ ( HermitianMat.inner_eq_trace_rc _ _ ) using 2;
+  rotate_left;
+  rotate_left;
+  rotate_left;
+  exact d;
+  exact ℂ;
+  all_goals try infer_instance;
+  exact ρ ^ α;
+  exact σ ^ ( 1 - α );
+  rotate_right;
+  exact fun x => x.re;
+  · unfold HermitianMat.conj;
+    simp +decide [ Matrix.trace, Matrix.mul_apply, Matrix.conjTranspose_apply, inner ];
+    rw [ show ( 1 - α ) / ( 2 * α ) * α = ( 1 - α ) / 2 by rw [ div_mul_eq_mul_div, div_eq_iff ] <;> linarith ];
+    -- By the properties of the trace, we can rearrange the terms inside the trace.
+    have h_trace : Matrix.trace ((σ.M ^ ((1 - α) / 2)).mat * (ρ.M ^ α).mat * (σ.M ^ ((1 - α) / 2)).mat) = Matrix.trace ((ρ.M ^ α).mat * (σ.M ^ (1 - α)).mat) := by
+      have h_trace : (σ.M ^ ((1 - α) / 2)).mat * (σ.M ^ ((1 - α) / 2)).mat = (σ.M ^ (1 - α)).mat := by
+        have := σ.nonneg;
+        rw [ ← HermitianMat.mat_rpow_add this ] ; ring;
+        linarith;
+      rw [ ← h_trace, Matrix.mul_assoc ];
+      rw [ ← Matrix.trace_mul_comm ] ; simp +decide [ Matrix.mul_assoc ] ;
+    convert congr_arg Complex.re h_trace using 1;
+    simp +decide [ Matrix.trace, Matrix.mul_apply ];
+  · exact HermitianMat.inner_eq_re_trace _ _
+
+/-
+PROVIDED SOLUTION
+We need to show `⟪ρ.M ^ α, σ.M ^ (1 - α)⟫_ℝ ≤ 1` for `0 < α < 1`.
+Step 1: Apply `HermitianMat.inner_le_trace_rpow_mul` with A = ρ.M ^ α, B = σ.M ^ (1 - α), p = 1/α, q = 1/(1-α).
+Check hypotheses:
+- `0 ≤ ρ.M ^ α`: by `HermitianMat.rpow_nonneg ρ.nonneg`
+- `0 ≤ σ.M ^ (1 - α)`: by `HermitianMat.rpow_nonneg σ.nonneg`
+- `1 < 1/α`: since `0 < α < 1`, we have `1/α > 1`
+- `1/p + 1/q = α + (1 - α) = 1`: check by `field_simp; ring` or similar
+Step 2: Simplify the RHS:
+`((ρ.M ^ α) ^ (1/α)).trace ^ (1/(1/α)) * ((σ.M ^ (1-α)) ^ (1/(1-α))).trace ^ (1/(1/(1-α)))`
+Using `HermitianMat.rpow_mul`:
+- `(ρ.M ^ α) ^ (1/α) = ρ.M ^ (α * (1/α)) = ρ.M ^ 1 = ρ.M` (via `rpow_mul ρ.nonneg`, then `α * (1/α) = 1` by `mul_div_cancel₀`)
+- `(σ.M ^ (1-α)) ^ (1/(1-α)) = σ.M ^ 1 = σ.M`
+Note `ρ.M ^ 1 = ρ.M` by simp or `rpow_one` or similar.
+Step 3: The trace of ρ.M is 1 (by `ρ.tr` or `simp`) and trace of σ.M is 1.
+And `1/(1/α) = α`, `1/(1/(1-α)) = 1-α`.
+So the RHS = `1^α * 1^{1-α} = 1`.
+Thus `⟪ρ.M^α, σ.M^{1-α}⟫_ℝ ≤ 1`.
+-/
+private lemma inner_rpow_le_one (hα₀ : 0 < α) (hα : α < 1) :
+    ⟪ρ.M ^ α, σ.M ^ (1 - α)⟫_ℝ ≤ 1 := by
+  convert HermitianMat.inner_le_trace_rpow_mul _ _ _ _ _ _ _ _ using 1;
+  rotate_left;
+  (expose_names; exact inst_1);
+  apply_rules [ HermitianMat.rpow_nonneg ];
+  exact ρ.nonneg;
+  apply_rules [ HermitianMat.rpow_nonneg, σ.nonneg ];
+  exact 1 / α;
+  exact 1 / ( 1 - α );
+  · rw [ lt_div_iff₀ ] <;> linarith;
+  · norm_num;
+  · rw [ ← HermitianMat.rpow_mul ρ.nonneg, ← HermitianMat.rpow_mul σ.nonneg ] ; norm_num [ hα₀.ne', hα.ne ];
+    norm_num [ ne_of_gt ( sub_pos.mpr hα ) ]
 
 /-
 PROBLEM
@@ -433,7 +463,14 @@ Step 2: By inner_le_trace_rpow_mul with p = 1/α > 1, q' = 1/(1-α) > 1:
 -/
 private theorem sandwiched_trace_of_lt_1 (h : σ.M.ker ≤ ρ.M.ker) (hα₀ : 0 < α) (hα : α < 1) :
     ((ρ.M.conj (σ.M ^ ((1 - α)/(2 * α)) ).mat) ^ α).trace ≤ 1 := by
-  sorry
+  set t := (1 - α) / (2 * α)
+  calc ((ρ.M.conj (σ.M ^ t).mat) ^ α).trace
+      _ ≤ ((ρ.M ^ α).conj (σ.M ^ (t * α)).mat).trace := by
+          exact HermitianMat.araki_lieb_thirring_le_one ρ.M σ.M ρ.nonneg σ.nonneg t α hα₀ hα.le
+      _ = ⟪ρ.M ^ α, σ.M ^ (1 - α)⟫_ℝ := by
+          exact trace_conj_rpow_eq_inner hα₀ hα
+      _ ≤ 1 := by
+          exact inner_rpow_le_one hα₀ hα
 
 /-- For PSD A and p ≠ 0, `A^{-p} * A^p = HermitianMat.supportProj A`. -/
 lemma HermitianMat.rpow_neg_mul_rpow_eq_supportProj
