@@ -7,7 +7,7 @@ Authors: Michał Mogielnicki
 import PhysLean.FluidMechanics.IdealFluid.Basic
 import PhysLean.Mathematics.Calculus.Divergence
 
-/-
+/-!
 This module introduces the continuity criterium.
 There is potential to add various different lemmas expanding on this.
 -/
@@ -18,7 +18,7 @@ open Space
 
 namespace IdealFluid
 
-/- defining satisfying the equation of continuity -/
+/-- defining satisfying the equation of continuity -/
 def satisfiesContinuity (F : IdealFluid):
     Prop :=
       ∀ (t : Time) (pos : Space),

@@ -7,7 +7,7 @@ Authors: Michał Mogielnicki
 import PhysLean.FluidMechanics.IdealFluid.Basic
 import PhysLean.Mathematics.Calculus.Divergence
 
-/-
+/-!
 This module introduces:
 steady flow,
 ... (still under construction)
@@ -19,12 +19,12 @@ open Space
 
 namespace IdealFluid
 
-/- Determines whether a flow is steady -/
+/-- Determines whether a flow is steady -/
 def isSteady (F: IdealFluid) :
     Prop :=
       ∀ (t : Time) (pos : Space), ∂ₜ (fun t' => IdealFluid.velocity F t' pos) t = 0
 
-/- Determines whether a flow is isentropic -/
+/-- Determines whether a flow is isentropic -/
 def isIsentropic (F: IdealFluid):
     Prop :=
       ∀ (t: Time) (pos: Space), ∂ₜ (fun t' => IdealFluid.entropy F t' pos) t = 0
