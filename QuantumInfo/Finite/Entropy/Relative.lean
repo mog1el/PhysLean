@@ -1153,6 +1153,23 @@ private lemma hasDerivAt_trace_conj_at_one {ρ σ : MState d}
   · simp only [trace_conj_eq_inner_rpow h]
     ring_nf
 
+/-
+For a differentiable function b with b(1) = c ≥ 0 and b(α) ≥ 0 near α = 1,
+the function α ↦ b(α)^α - b(α) has derivative c * log c at α = 1.
+-/
+private lemma scalar_rpow_cross_term {b : ℝ → ℝ} {c : ℝ}
+    (hb : HasDerivAt b (deriv b 1) 1) (hc : b 1 = c) (hc_pos : 0 < c) :
+    HasDerivAt (fun α => b α ^ α - b α) (c * Real.log c) 1 := by
+  subst c
+  simpa using (hb.rpow (hasDerivAt_id 1) hc_pos).sub hb
+
+/-- For a PSD matrix A, Tr[A^s] - Tr[A] has derivative ⟪A, log A⟫ at s = 1.
+    This generalizes `hasDerivAt_trace_rpow_at_one` to give the derivative of the
+    difference Tr[A^s] - Tr[A], which equals ⟪A, log A⟫ since d/ds Tr[A] = 0. -/
+private lemma hasDerivAt_trace_rpow_sub_trace (A : HermitianMat d ℂ) (hA : 0 ≤ A) :
+    HasDerivAt (fun s : ℝ => (A ^ s).trace - A.trace) ⟪A, A.log⟫ 1 := by
+  simpa using hasDerivAt_trace_rpow_at_one A hA
+
 /-- The cross term in the derivative decomposition vanishes: the function
     α ↦ Tr[B(α)^α] - Tr[B(α)] - Tr[ρ^α] + 1 has derivative 0 at α = 1.
     This is because at α=1, B^1 = B, so ∂/∂B Tr[B^α] = Tr[·] (the trace is linear),
