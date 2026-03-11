@@ -683,8 +683,7 @@ lemma basis_eq_mfderiv_modelDiffeo_single (d : ℕ) (μ : Fin d) (x : Space d) :
         (EuclideanSpace.single μ 1) := by
   simp [mfderiv]
   rw [if_pos (modelDiffeo.mdifferentiable (WithTop.top_ne_zero)).mdifferentiableAt]
-  change _ = fderiv ℝ (↑(manifoldStructure d).symm) ((manifoldStructure d) x)
-    (EuclideanSpace.single μ 1)
+  change _ = fderiv ℝ (manifoldStructure d).symm (manifoldStructure d x) (EuclideanSpace.single μ 1)
   simp [manifoldStructure]
   ext i
   rw [fderiv_space_components _ _ (by fun_prop)]
