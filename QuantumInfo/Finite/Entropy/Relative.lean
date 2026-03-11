@@ -1298,23 +1298,21 @@ private lemma scalar_rpow_cross_term_of_continuous_zero {b : ℝ → ℝ}
 
 /-- If ker A ≤ ker ρM, then conjugating ρM by the support projection of A gives back ρM.
     This is because ρM is supported entirely on the support (= range) of A. -/
-private lemma conj_supportProj_eq_of_ker_le
-    (A ρM : HermitianMat d ℂ) (hA : 0 ≤ A) (hρ : 0 ≤ ρM)
-    (hker : A.ker ≤ ρM.ker) :
+private lemma conj_supportProj_eq_of_ker_le (A ρM : HermitianMat d ℂ) (hker : A.ker ≤ ρM.ker) :
     ρM.conj (A.supportProj).mat = ρM := by
   have h_conj_support : ρM.mat * A.supportProj.mat = ρM.mat := by
     apply HermitianMat.mul_supportProj_of_ker_le; assumption;
   -- Using the conjugate transpose property and the fact that A.supportProj is Hermitian, we can simplify the expression.
   have h_conj_support : (A.supportProj.mat).conjTranspose * ρM.mat * A.supportProj.mat = ρM.mat := by
     rw [ ← Matrix.conjTranspose_inj ] at * ; aesop;
-  simp_all +decide [ HermitianMat.conj, Matrix.mul_assoc, Matrix.conjTranspose_mul ]
+  simp_all [ HermitianMat.conj, Matrix.mul_assoc ]
 
 /-- For a PSD matrix A, the function r ↦ A ^ r converges to A.supportProj
     as r → 0 through nonzero values. On positive eigenvalues λ, λ^r → 1.
     On zero eigenvalues, 0^r = 0 for r ≠ 0. So the limit is the support
     projection (indicator of nonzero eigenvalues). -/
 private lemma rpow_tendsto_supportProj
-    (A : HermitianMat d ℂ) (hA : 0 ≤ A) :
+    (A : HermitianMat d ℂ)  :
     Filter.Tendsto (fun r : ℝ => A ^ r) (nhdsWithin 0 {(0 : ℝ)}ᶜ) (nhds A.supportProj) := by
   -- By definition of $g$, we know that $A.cfc (g r)$ converges to $A.supportProj$ as $r$ approaches $0$.
   have h_cfc_g_conv : Filter.Tendsto (fun r : ℝ => A.cfc (fun x : ℝ => if r = 0 then (if x = 0 then 0 else 1) else x ^ r)) (nhds 0) (nhds A.supportProj) := by
@@ -1325,10 +1323,10 @@ private lemma rpow_tendsto_supportProj
           intro x
           by_cases hx : x = 0 <;> simp [hx];
           · rw [ Metric.continuous_iff ] ; aesop;
-          · rw [ show ( fun r : ℝ => if r = 0 then 1 else x ^ r ) = fun r : ℝ => x ^ r by ext r; by_cases hr : r = 0 <;> simp +decide [ hr, hx ] ] ; exact Continuous.rpow continuous_const continuous_id' <| by continuity;
+          · rw [ show ( fun r : ℝ => if r = 0 then 1 else x ^ r ) = fun r : ℝ => x ^ r by ext r; by_cases hr : r = 0 <;> simp [ hr ] ] ; exact Continuous.rpow continuous_const continuous_id' <| by continuity;
         apply_rules [ HermitianMat.continuous_cfc_fun ];
       convert h_cfc_cont using 1;
-    convert h_cfc_g_conv.tendsto 0 using 2 ; simp +decide [ HermitianMat.supportProj_eq_cfc ];
+    convert h_cfc_g_conv.tendsto 0 using 2 ; simp [ HermitianMat.supportProj_eq_cfc ];
   exact Filter.Tendsto.congr' ( Filter.eventuallyEq_of_mem self_mem_nhdsWithin fun x hx => by aesop ) ( h_cfc_g_conv.mono_left inf_le_left )
 
 /-- For PSD matrices A, ρ with A.ker ≤ ρ.ker, the function r ↦ ρ.conj (A ^ r).mat
@@ -1336,15 +1334,15 @@ private lemma rpow_tendsto_supportProj
     has zero eigenvalues, the kernel condition ensures the conj "kills" the
     discontinuity. -/
 private lemma conj_rpow_continuousAt_zero
-    (A ρM : HermitianMat d ℂ) (hA : 0 ≤ A) (hρ : 0 ≤ ρM)
+    (A ρM : HermitianMat d ℂ)
     (hker : A.ker ≤ ρM.ker) :
     ContinuousAt (fun r : ℝ => ρM.conj (A ^ r).mat) 0 := by
   have h_conj : Filter.Tendsto (fun r : ℝ => A ^ r) (nhdsWithin 0 {0}ᶜ) (nhds A.supportProj) := by
-    convert rpow_tendsto_supportProj A hA using 1;
+    convert rpow_tendsto_supportProj A using 1;
   have h_conj : Filter.Tendsto (fun r : ℝ => (HermitianMat.conj (A ^ r).mat) ρM) (nhdsWithin 0 {0}ᶜ) (nhds ρM) := by
     convert Filter.Tendsto.comp ( show Filter.Tendsto ( fun M : { M : Matrix d d ℂ // M.IsHermitian } ↦ ( HermitianMat.conj M.val ) ρM ) ( nhds ( A.supportProj ) ) ( nhds ρM ) from ?_ ) h_conj using 2;
     convert Continuous.tendsto _ _;
-    · convert conj_supportProj_eq_of_ker_le A ρM hA hρ hker |> Eq.symm;
+    · convert conj_supportProj_eq_of_ker_le A ρM hker |> Eq.symm;
     · fun_prop;
   rw [ Metric.tendsto_nhdsWithin_nhds ] at *;
   exact Metric.tendsto_nhds_nhds.mpr fun ε hε => by rcases h_conj ε hε with ⟨ δ, hδ, H ⟩ ; exact ⟨ δ, hδ, by intro x hx; by_cases hx' : x = 0 <;> aesop ⟩ ;
@@ -1361,7 +1359,7 @@ private lemma B_of_continuousAt (ρ σ : MState d) (h : σ.M.ker ≤ ρ.M.ker) :
   have h_cont : ContinuousAt (fun α : ℝ => ρ.M.conj (σ.M ^ ((1 - α) / (2 * α))).mat) 1 := by
     have h_inner : ContinuousAt (fun r : ℝ => ρ.M.conj (σ.M ^ r).mat) 0 := by
       -- Apply the hypothesis `h_cont` directly to conclude the proof.
-      exact conj_rpow_continuousAt_zero σ.M ρ.M σ.nonneg ρ.nonneg h
+      exact conj_rpow_continuousAt_zero σ.M ρ.M h
     have h_exp : ContinuousAt (fun α : ℝ => (1 - α) / (2 * α)) 1 := by
       exact ContinuousAt.div ( continuousAt_const.sub continuousAt_id ) ( continuousAt_const.mul continuousAt_id ) ( by norm_num )
     exact ContinuousAt.comp ( by simpa using h_inner ) h_exp |> ContinuousAt.congr <| Filter.eventuallyEq_of_mem ( Ioi_mem_nhds zero_lt_one ) fun x hx ↦ by aesop;

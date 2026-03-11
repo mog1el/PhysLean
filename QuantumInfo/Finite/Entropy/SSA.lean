@@ -13,9 +13,9 @@ entropy, and generalizations such as sandwiched Rényi relative entropy.
 
 noncomputable section
 
-variable {d d₁ d₂ d₃ : Type*}
-variable [Fintype d] [Fintype d₁] [Fintype d₂] [Fintype d₃]
-variable [DecidableEq d] [DecidableEq d₁] [DecidableEq d₂] [DecidableEq d₃]
+variable {d d₁ d₂ d₃ m n : Type*}
+variable [Fintype d] [Fintype d₁] [Fintype d₂] [Fintype d₃] [Fintype m] [Fintype n]
+variable [DecidableEq d] [DecidableEq d₁] [DecidableEq d₂] [DecidableEq d₃] [DecidableEq m] [DecidableEq n]
 variable {dA dB dC dA₁ dA₂ : Type*}
 variable [Fintype dA] [Fintype dB] [Fintype dC] [Fintype dA₁] [Fintype dA₂]
 variable [DecidableEq dA] [DecidableEq dB] [DecidableEq dC] [DecidableEq dA₁] [DecidableEq dA₂]
@@ -29,14 +29,13 @@ open scoped InnerProductSpace RealInnerProductSpace Kronecker Matrix
 The operator norm of a matrix is the operator norm of the linear map it represents, with respect to the Euclidean norm.
 -/
 /-- The operator norm of a matrix, with respect to the Euclidean norm (l2 norm) on the domain and codomain. -/
-noncomputable def Matrix.opNorm {m n 𝕜 : Type*} [Fintype m] [Fintype n] [DecidableEq m] [DecidableEq n] [RCLike 𝕜] (A : Matrix m n 𝕜) : ℝ :=
+noncomputable def Matrix.opNorm [RCLike 𝕜] (A : Matrix m n 𝕜) : ℝ :=
   ‖LinearMap.toContinuousLinearMap (Matrix.toEuclideanLin A)‖
 
 /-
 An isometry preserves the Euclidean norm.
 -/
-theorem Matrix.isometry_preserves_norm {n m 𝕜 : Type*} [Fintype n] [Fintype m] [DecidableEq n] [DecidableEq m] [RCLike 𝕜]
-    (A : Matrix n m 𝕜) (hA : A.Isometry) (x : EuclideanSpace 𝕜 m) :
+theorem Matrix.isometry_preserves_norm (A : Matrix n m 𝕜) (hA : A.Isometry) (x : EuclideanSpace 𝕜 m) :
     ‖Matrix.toEuclideanLin A x‖ = ‖x‖ := by
   rw [ ← sq_eq_sq₀ ( by positivity ) ( by positivity ), Matrix.Isometry ] at *;
   simp [ EuclideanSpace.norm_eq]
@@ -55,8 +54,7 @@ theorem Matrix.isometry_preserves_norm {n m 𝕜 : Type*} [Fintype n] [Fintype m
 /-
 The operator norm of an isometry is 1 (assuming the domain is non-empty).
 -/
-theorem Matrix.opNorm_isometry {n m 𝕜 : Type*} [Fintype n] [Fintype m] [DecidableEq n] [DecidableEq m] [RCLike 𝕜] [Nonempty m]
-    (A : Matrix n m 𝕜) (hA : A.Isometry) : Matrix.opNorm A = 1 := by
+theorem Matrix.opNorm_isometry [Nonempty m] (A : Matrix n m 𝕜) (hA : A.Isometry) : Matrix.opNorm A = 1 := by
   have h_opNorm : ∀ x : EuclideanSpace 𝕜 m, ‖Matrix.toEuclideanLin A x‖ = ‖x‖ := by
     convert Matrix.isometry_preserves_norm A hA;
   refine' le_antisymm ( csInf_le _ _ ) ( le_csInf _ _ );
@@ -66,10 +64,10 @@ theorem Matrix.opNorm_isometry {n m 𝕜 : Type*} [Fintype n] [Fintype m] [Decid
   · norm_num +zetaDelta at *;
     intro b hb h; specialize h ( EuclideanSpace.single ( Classical.arbitrary m ) 1 ) ; aesop;
 
+variable (d₁ d₂) in
 /-- The matrix representation of the map $v \mapsto v \otimes \sum_k |k\rangle|k\rangle$.
     The output index is `(d1 \times d2) \times d2`. -/
-def map_to_tensor_MES (d1 d2 : Type*) [Fintype d1] [Fintype d2] [DecidableEq d1] [DecidableEq d2] :
-    Matrix ((d1 × d2) × d2) d1 ℂ :=
+def map_to_tensor_MES : Matrix ((d₁ × d₂) × d₂) d₁ ℂ :=
   Matrix.of fun ((i, j), k) l => if i = l ∧ j = k then 1 else 0
 
 theorem map_to_tensor_MES_prop (A : Matrix (d₁ × d₂) (d₁ × d₂) ℂ) :
@@ -339,8 +337,9 @@ theorem HermitianMat.inv_kronecker {m n : Type*} [Fintype m] [DecidableEq m]
     (A ⊗ₖ B)⁻¹ = A⁻¹ ⊗ₖ B⁻¹ := by
   have h_inv : (A ⊗ₖ B).mat * (A⁻¹ ⊗ₖ B⁻¹).mat = 1 := by
     have h_inv : (A ⊗ₖ B).mat * (A⁻¹ ⊗ₖ B⁻¹).mat = (A.mat * A⁻¹.mat) ⊗ₖ (B.mat * B⁻¹.mat) := by
-      ext i j; simp +decide [ Matrix.mul_apply, Matrix.kroneckerMap ] ;
-      simp +decide only [mul_assoc, Finset.sum_mul _ _ _, Finset.mul_sum];
+      ext i j; simp [ Matrix.mul_apply, Matrix.kroneckerMap ] ;
+      simp only [mul_assoc, Finset.sum_mul]
+      simp only [Finset.mul_sum]
       rw [ ← Finset.sum_product' ] ; congr ; ext ; ring!;
     aesop;
   refine' Subtype.ext ( Matrix.inv_eq_right_inv h_inv )
