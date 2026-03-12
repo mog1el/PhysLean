@@ -131,7 +131,8 @@ lemma deriv_eq_mfderiv_manifoldStructure {M d} [NormedAddCommGroup M] [NormedSpa
     rw [basis_eq_mfderiv_modelDiffeo_single]
     rfl
   · rw [deriv_eq, fderiv_zero_of_not_differentiableAt hf,
-      mfderiv_zero_of_not_mdifferentiableAt <| mdifferentiable_iff_differentiable.mp.mt hf]
+      mfderiv_zero_of_not_mdifferentiableAt <|
+      mdifferentiable_manifoldStructure_iff_differentiable.mp.mt hf]
     simp
 
 /-!
