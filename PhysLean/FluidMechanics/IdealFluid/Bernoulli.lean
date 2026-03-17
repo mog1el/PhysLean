@@ -4,8 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Michał Mogielnicki
 -/
 
-import PhysLean.FluidMechanics.IdealFluid.Basic
-import PhysLean.Mathematics.Calculus.Divergence
+module
+
+public import PhysLean.FluidMechanics.IdealFluid.Basic
+public import PhysLean.Mathematics.Calculus.Divergence
+public import PhysLean.SpaceAndTime.Time.Derivatives
 
 /-!
 This module introduces:
@@ -17,18 +20,14 @@ open scoped InnerProductSpace
 open Time
 open Space
 
-namespace IdealFluid
-
 /-- Determines whether a flow is steady -/
-def isSteady (F: IdealFluid) :
+def IdealFluid.isSteady (F: IdealFluid) :
     Prop :=
-      ∀ (t : Time) (pos : Space), ∂ₜ (fun t' => IdealFluid.velocity F t' pos) t = 0
+      ∀ (t : Time) (pos : Space), ∂ₜ (fun t' => F.velocity t' pos) t = (0 : EuclideanSpace ℝ (Fin 3))
 
 /-- Determines whether a flow is isentropic -/
-def isIsentropic (F: IdealFluid):
+def IdealFluid.isIsentropic (F: IdealFluid):
     Prop :=
-      ∀ (t: Time) (pos: Space), ∂ₜ (fun t' => IdealFluid.entropy F t' pos) t = 0
+      ∀ (t: Time) (pos: Space), ∂ₜ (fun t' => F.entropy t' pos) t = (0 : ℝ)
 
 -- TODO: Provide the Bernoulli's equation (after fun derivatoins)
-
-end IdealFluid

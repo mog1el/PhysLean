@@ -4,10 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Michał Mogielnicki
 -/
 
-import Mathlib.Analysis.InnerProductSpace.PiL2
-import Mathlib.Analysis.Calculus.ContDiff.Basic
-import PhysLean.SpaceAndTime.Space.Basic
-import PhysLean.SpaceAndTime.Time.Basic
+module
+
+public import Mathlib.Analysis.InnerProductSpace.PiL2
+public import Mathlib.Analysis.Calculus.ContDiff.Basic
+public import PhysLean.SpaceAndTime.Space.Module
+public import PhysLean.SpaceAndTime.Time.Basic
 
 /-!
 This module introduces the idea of an ideal fluid and the mass flux density
@@ -17,7 +19,7 @@ and basic physical properties, meant to be later used for proofs.
 open scoped InnerProductSpace
 
 /-- Introducing the structure of Ideal Fluids -/
-structure IdealFluid where
+public structure IdealFluid where
   /-- The density at a specific point and time -/
   density: Time → Space → ℝ
   /-- The velocity at a specific point and time -/
@@ -43,12 +45,12 @@ namespace IdealFluid
 open MeasureTheory
 
 /-- Mass flux density j=ρv -/
-def massFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
+public def massFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
     EuclideanSpace ℝ (Fin 3) :=
      (IdealFluid.density F t pos) • (IdealFluid.velocity F t pos)
 
 /-- Entropy flux density ρsv -/
-def entropyFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
+public def entropyFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
     EuclideanSpace ℝ (Fin 3) :=
       (IdealFluid.entropy F t pos) • (IdealFluid.density F t pos) • (IdealFluid.velocity F t pos)
 

@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Michał Mogielnicki
 -/
 
-import PhysLean.FluidMechanics.IdealFluid.Basic
-import PhysLean.Mathematics.Calculus.Divergence
+module
+
+public import PhysLean.FluidMechanics.IdealFluid.Basic
+public import PhysLean.Mathematics.Calculus.Divergence
+public import PhysLean.SpaceAndTime.Time.Derivatives
+public import PhysLean.SpaceAndTime.Space.Derivatives.Div
 
 /-!
 This module introduces the continuity criterium.
@@ -16,17 +20,13 @@ open scoped InnerProductSpace
 open Time
 open Space
 
-namespace IdealFluid
-
 /-- defining satisfying the equation of continuity -/
-def satisfiesContinuity (F : IdealFluid):
+def IdealFluid.satisfiesContinuity (F : IdealFluid):
     Prop :=
       ∀ (t : Time) (pos : Space),
-      ∂ₜ (fun t' => IdealFluid.density F t' pos) t +
-      Space.div (fun pos' => IdealFluid.massFluxDensity F t pos') pos = 0
+      ∂ₜ (fun t' => F.density t' pos) t +
+      Space.div (fun pos' => F.massFluxDensity t pos') pos = (0 : ℝ)
 
 
 -- TODO: Add lemmas for continuity with different models.
 -- TODO: Add definition and lemmas for Incompressibility.
-
-end IdealFluid
