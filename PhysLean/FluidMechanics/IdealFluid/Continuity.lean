@@ -21,12 +21,8 @@ open Time
 open Space
 
 /-- defining satisfying the equation of continuity -/
-def IdealFluid.satisfiesContinuity (F : IdealFluid):
+public def IdealFluid.satisfiesContinuity (F : IdealFluid):
     Prop :=
       ∀ (t : Time) (pos : Space),
       ∂ₜ (fun t' => F.density t' pos) t +
       Space.div (fun pos' => F.massFluxDensity t pos') pos = (0 : ℝ)
-
-
--- TODO: Add lemmas for continuity with different models.
--- TODO: Add definition and lemmas for Incompressibility.

@@ -28,8 +28,8 @@ public structure IdealFluid where
   pressure: Time → Space → ℝ
   /-- The entropy at a specific point and time -/
   entropy: Time → Space → ℝ
-  /-- The enthlapy at a specific point and time -/
-  enthlapy: Time → Space → ℝ
+  /-- The enthalpy at a specific point and time -/
+  enthalpy: Time → Space → ℝ
 
   density_pos: ∀ t pos, 0 < density t pos
 
@@ -39,7 +39,7 @@ public structure IdealFluid where
   pressure_contdiff: ContDiff ℝ 1 ( fun(s:Time × Space)=>pressure s.1 s.2)
 
   entropy_contdiff: ContDiff ℝ 1 ( fun(s:Time × Space)=>entropy s.1 s.2)
-  enthlapy_contdiff: ContDiff ℝ 1 ( fun(s:Time × Space)=>enthlapy s.1 s.2)
+  enthalpy_contdiff: ContDiff ℝ 1 ( fun(s:Time × Space)=>enthalpy s.1 s.2)
 
 namespace IdealFluid
 open MeasureTheory
@@ -57,7 +57,7 @@ public def entropyFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
 /-- Energy flux density ρv(1/2 |v|^2 + w) -/
 noncomputable def energyFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
     EuclideanSpace ℝ (Fin 3) :=
-      let w := IdealFluid.enthlapy F t pos
+      let w := IdealFluid.enthalpy F t pos
       let v := IdealFluid.velocity F t pos
       let v_sq: ℝ := ⟪v,v⟫_ℝ
       let scalar := (IdealFluid.density F t pos)*(0.5*v_sq + w)

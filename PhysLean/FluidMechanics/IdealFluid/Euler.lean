@@ -20,7 +20,11 @@ open scoped InnerProductSpace
 open Time
 open Space
 
-namespace IdealFluid
-
---TODO: Introduce
-end IdealFluid
+/-- Defines the property of satisfying Euler's equation. -/
+public def IdealFluid.satisfiesEuler (F: IdealFluid) (g: Space → ℝ):
+    Prop :=
+      ∀ (t : Time) (pos : Space),
+        let v := F.velocity t pos
+        ∂ₜ (fun t'=> F.velocity t' pos) t +
+        (fun i => ⟪v, Space.grad (fun pos' => F.velocity t pos' i) pos⟫_ℝ)
+        = -(1/F.density t pos) • Space.grad (fun pos' => F.pressure t pos') pos + Space.grad g pos
