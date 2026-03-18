@@ -31,3 +31,12 @@ public def IdealFluid.satisfiesContinuity (F : IdealFluid):
 public def IdealFluid.isIncompressible (F : IdealFluid):
     Prop :=
       ∀ (t : Time) (pos : Space), ∂ₜ (fun t' => F.density t' pos) t = 0
+
+
+/-- Theorem: If constant density and incompressible div(v)=0-/
+theorem incompress_const_density_implies_div_v_eq_zero (F : IdealFluid)
+    (Cont      : F.satisfiesContinuity)
+    (Incomp    : F.isIncompressible)
+    (ConstDens : ∀ (t : Time) (pos : Space), Space.grad (fun pos' => F.density t pos') pos = 0) :
+    ∀ (t : Time) (pos : Space), Space.div (fun pos' => F.velocity t pos') pos = 0 := by
+      sorry
