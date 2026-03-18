@@ -45,17 +45,17 @@ namespace IdealFluid
 open MeasureTheory
 
 /-- Mass flux density j=ρv -/
-public def massFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
+public abbrev massFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
     EuclideanSpace ℝ (Fin 3) :=
-     (IdealFluid.density F t pos) • (IdealFluid.velocity F t pos)
+      F.density t pos • F.velocity t pos
 
 /-- Entropy flux density ρsv -/
-public def entropyFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
+public abbrev entropyFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
     EuclideanSpace ℝ (Fin 3) :=
       (IdealFluid.entropy F t pos) • (IdealFluid.density F t pos) • (IdealFluid.velocity F t pos)
 
 /-- Energy flux density ρv(1/2 |v|^2 + w) -/
-noncomputable def energyFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
+noncomputable abbrev energyFluxDensity (F: IdealFluid) (t: Time) (pos: Space):
     EuclideanSpace ℝ (Fin 3) :=
       let w := IdealFluid.enthalpy F t pos
       let v := IdealFluid.velocity F t pos

@@ -43,11 +43,11 @@ noncomputable def IdealFluid.bernoulliEquation (F: IdealFluid)
 /-- Derivation:
   If the flow is steady and isentropic, the bernoulli equation is constant
 -/
-theorem bernoulli_derivation (F: IdealFluid) (Eul: F.satisfiesEuler g) (Stdy: F.isSteady)
-(Istrpc: F.isIsentropic) (g: Space → ℝ) (t: Time) (pos: Space):
+theorem bernoulli_derivation (F : IdealFluid) (g : Space → ℝ) (t : Time) (pos : Space)
+    (Eul : F.satisfiesEuler g)
+    (Stdy : F.isSteady)
+    (Istrpc : F.isIsentropic) :
     let v := F.velocity t pos
-    ⟪v, Space.grad (fun pos' => F.bernoulliEquation t pos' g) pos⟫_ℝ = 0
-    := by
-      sorry
-
---TODO: Complete the proofs
+    ⟪v, Space.grad (fun pos' => F.bernoulliEquation t pos' g) pos⟫_ℝ = 0 :=
+      by
+        sorry

@@ -26,3 +26,8 @@ public def IdealFluid.satisfiesContinuity (F : IdealFluid):
       ∀ (t : Time) (pos : Space),
       ∂ₜ (fun t' => F.density t' pos) t +
       Space.div (fun pos' => F.massFluxDensity t pos') pos = (0 : ℝ)
+
+/-- Criterion for incompressibility -/
+public def IdealFluid.isIncompressible (F : IdealFluid):
+    Prop :=
+      ∀ (t : Time) (pos : Space), ∂ₜ (fun t' => F.density t' pos) t = 0
