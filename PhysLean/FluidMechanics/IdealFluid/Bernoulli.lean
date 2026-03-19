@@ -33,12 +33,16 @@ def IdealFluid.isIsentropic (F: IdealFluid):
       ∀ (t: Time) (pos: Space),
       ∂ₜ (fun t' => F.entropy t' pos) t = (0 : ℝ)
 
+-- TODO: Make into material derivative
+
 /-- The Bernoulli function (1/2)v^2 + w -/
 noncomputable def IdealFluid.bernoulliEquation (F: IdealFluid)
 (t: Time) (pos: Space) (g: Space → ℝ):
     ℝ :=
       let v := F.velocity t pos
       0.5 * ⟪v, v⟫_ℝ + F.enthalpy t pos + g pos
+
+-- TODO: Recheck signs
 
 /-- Derivation:
   If the flow is steady and isentropic, the bernoulli equation is constant
