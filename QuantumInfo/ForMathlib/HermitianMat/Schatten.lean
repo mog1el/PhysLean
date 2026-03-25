@@ -40,14 +40,15 @@ theorem schattenNorm_hermitian_pow {A : HermitianMat d ℂ} (hA : 0 ≤ A) {p : 
 
 lemma schattenNorm_nonneg (A : Matrix d d ℂ) (p : ℝ) :
     0 ≤ schattenNorm A p := by
-  by_cases hp : p = 0 <;> simp +decide [ *, schattenNorm ];
-  by_cases h₁ : 0 ≤ RCLike.re ( Matrix.trace ( Matrix.IsHermitian.cfc ( Matrix.isHermitian_mul_conjTranspose_self A.conjTranspose ) fun x => x ^ ( p / 2 ) ) ) <;> simp_all +decide [ Real.rpow_nonneg ];
-  contrapose! h₁; simp_all +decide [ mul_comm, Matrix.trace ] ; ring_nf; norm_num [ Real.exp_nonneg, Real.log_nonneg ] ; (
+  by_cases hp : p = 0 <;> simp [ *, schattenNorm ];
+  by_cases h₁ : 0 ≤ RCLike.re ( Matrix.trace ( Matrix.IsHermitian.cfc ( Matrix.isHermitian_mul_conjTranspose_self A.conjTranspose ) fun x => x ^ ( p / 2 ) ) ) <;> simp_all [ Real.rpow_nonneg ];
+  contrapose! h₁; simp_all [Matrix.trace ] ; ring_nf; norm_num [ Real.exp_nonneg, Real.log_nonneg ] ; (
   refine' Finset.sum_nonneg fun i _ => _ ; norm_num [ Matrix.IsHermitian.cfc ] ; ring_nf ; norm_num [ Real.exp_nonneg, Real.log_nonneg ] ; (
-  simp +decide [ Matrix.mul_apply, Matrix.diagonal ] ; ring_nf ; norm_num [ Real.exp_nonneg, Real.log_nonneg ] ; (
-  exact Finset.sum_nonneg fun _ _ => add_nonneg ( mul_nonneg ( sq_nonneg _ ) ( Real.rpow_nonneg ( by
-    exact? ) _ ) ) ( mul_nonneg ( Real.rpow_nonneg ( by
-    exact? ) _ ) ( sq_nonneg _ ) ))));
+  simp [ Matrix.mul_apply, Matrix.diagonal ] ; ring_nf ; norm_num [ Real.exp_nonneg, Real.log_nonneg ] ; (
+  --TODO: If we import Order, the whole line is just `positivity`.
+  exact Finset.sum_nonneg fun _ _ => add_nonneg ( mul_nonneg ( sq_nonneg _ ) ( Real.rpow_nonneg (
+    (Matrix.eigenvalues_conjTranspose_mul_self_nonneg A _) ) _ ) ) ( mul_nonneg ( Real.rpow_nonneg (
+    (Matrix.eigenvalues_conjTranspose_mul_self_nonneg A _) ) _ ) ( sq_nonneg _ ) ))));
 
 lemma schattenNorm_pow_eq
   (A : HermitianMat d ℂ) (hA : 0 ≤ A) (p k : ℝ) (hp : 0 < p) (hk : 0 < k) :
@@ -71,19 +72,7 @@ lemma trace_eq_schattenNorm_rpow
 
 /-! ## Relating schattenNorm to singular values -/
 
-/-
-PROBLEM
-The trace of cfc(A†A, t ↦ t^{p/2}) expressed as a sum of eigenvalues.
-
-PROVIDED SOLUTION
-Use Matrix.IsHermitian.cfc_eq to convert cfc to Matrix.IsHermitian.cfc, which is defined as U * diagonal(f(eigenvalues)) * U*. The trace of U * D * U* = trace(D) = ∑ f(eigenvalues i).
-
-More specifically, use Matrix.IsHermitian.trace_eq_sum_eigenvalues on the CFC result, combined with the fact that the eigenvalues of cfc(H, f) are f(eigenvalues of H). The existing lemma HermitianMat.trace_cfc_eq might help, but we need the Matrix version.
-
-Actually, look at Matrix.IsHermitian.cfc: it's defined as eigenvectorUnitary * diagonal(ofReal ∘ f ∘ eigenvalues) * star eigenvectorUnitary. The trace of this is ∑ ofReal(f(eigenvalues i)). Taking re gives ∑ f(eigenvalues i).
-
-So: unfold Matrix.IsHermitian.cfc, compute the trace as Matrix.trace of U D U* = Matrix.trace D (by trace_mul_comm), then Matrix.trace (diagonal g) = ∑ g i, and take re of ∑ ofReal(x) = ∑ x.
--/
+/- The trace of cfc(A†A, t ↦ t^{p/2}) expressed as a sum of eigenvalues. -/
 lemma schattenNorm_trace_as_eigenvalue_sum (A : Matrix d d ℂ) (p : ℝ) :
     RCLike.re ((Matrix.isHermitian_mul_conjTranspose_self A.conjTranspose).cfc (· ^ (p/2))).trace =
     ∑ i : d, ((Matrix.isHermitian_mul_conjTranspose_self A.conjTranspose).eigenvalues i) ^ (p/2) := by
@@ -91,45 +80,17 @@ lemma schattenNorm_trace_as_eigenvalue_sum (A : Matrix d d ℂ) (p : ℝ) :
   simp [ Matrix.trace_mul_comm, Matrix.mul_assoc ]
 
 /-
-PROBLEM
-For nonneg eigenvalue λ and p > 0, (√λ)^p = λ^{p/2}.
-
-PROVIDED SOLUTION
-We have √y = y^{1/2} (by Real.sqrt_eq_rpow). So (√y)^p = (y^{1/2})^p = y^{(1/2)·p} = y^{p/2} by Real.rpow_mul (since y ≥ 0). Use rw [Real.sqrt_eq_rpow, ← Real.rpow_mul hy]; ring_nf.
--/
-lemma sqrt_rpow_eq_rpow_half {y p : ℝ} (hy : 0 ≤ y) (hp : 0 < p) :
-    Real.sqrt y ^ p = y ^ (p / 2) := by
-  rw [ Real.sqrt_eq_rpow, ← Real.rpow_mul hy ] ; ring
-
-/-
-PROBLEM
 The Schatten p-norm raised to the p-th power equals the sum of singular values
     raised to the p-th power: `‖A‖_p^p = ∑ σᵢ(A)^p`.
-
-PROVIDED SOLUTION
-The proof combines three key facts:
-
-1. schattenNorm A p ^ p = re(Tr[cfc(A†A, t ↦ t^{p/2})]).
-   From the definition: schattenNorm A p = (re Tr[...])^{1/p}, so schattenNorm^p = ((re Tr[...])^{1/p})^p. Use ← Real.rpow_mul (with nonneg base) to get exponent 1/p · p = 1, then Real.rpow_one.
-
-2. re(Tr[cfc(A†A, t ↦ t^{p/2})]) = ∑ eigenvalues(A†A)ᵢ^{p/2}.
-   Use schattenNorm_trace_as_eigenvalue_sum.
-
-3. ∑ eigenvalues(A†A)ᵢ^{p/2} = ∑ singularValues A i ^ p.
-   Since singularValues A i = √(eigenvalues(A†A)ᵢ) (both now using isHermitian_mul_conjTranspose_self A.conjTranspose), we get singularValues A i ^ p = (√λᵢ)^p = λᵢ^{p/2} by sqrt_rpow_eq_rpow_half (with λᵢ ≥ 0 from Matrix.eigenvalues_conjTranspose_mul_self_nonneg).
-
-For step 1: unfold schattenNorm, then ← Real.rpow_mul on nonneg base. The base is nonneg because it equals ∑ λᵢ^{p/2} with nonneg eigenvalues. Use schattenNorm_trace_as_eigenvalue_sum to rewrite to the sum, then the sum is nonneg by Finset.sum_nonneg + Real.rpow_nonneg.
-
-For step 3: use Finset.sum_congr and sqrt_rpow_eq_rpow_half with nonneg eigenvalue.
 -/
 lemma schattenNorm_rpow_eq_sum_singularValues (A : Matrix d d ℂ) {p : ℝ} (hp : 0 < p) :
     schattenNorm A p ^ p = ∑ i : d, singularValues A i ^ p := by
   unfold schattenNorm;
   rw [ ← Real.rpow_mul ( _ ), one_div_mul_cancel hp.ne', Real.rpow_one ];
   · convert schattenNorm_trace_as_eigenvalue_sum A p using 1
-    generalize_proofs at *;
     refine' Finset.sum_congr rfl fun i _ => _;
-    unfold singularValues; rw [ Real.sqrt_eq_rpow, ← Real.rpow_mul ( _ ) ] ; ring;
+    unfold singularValues; rw [ Real.sqrt_eq_rpow, ← Real.rpow_mul ( _ ) ]
+    ring_nf
     simp +zetaDelta at *;
     exact Matrix.eigenvalues_conjTranspose_mul_self_nonneg A i;
   · have h_nonneg : ∀ i : d, 0 ≤ ((Matrix.isHermitian_mul_conjTranspose_self A.conjTranspose).eigenvalues i) ^ (p / 2) := by
@@ -137,14 +98,8 @@ lemma schattenNorm_rpow_eq_sum_singularValues (A : Matrix d d ℂ) {p : ℝ} (hp
     convert Finset.sum_nonneg fun i _ => h_nonneg i using 1;
     convert schattenNorm_trace_as_eigenvalue_sum A p using 1
 
-/-
-PROBLEM
-The Schatten p-norm equals the ℓ^p quasi-norm of the singular values:
-    `‖A‖_p = (∑ σᵢ(A)^p)^{1/p}`.
-
-PROVIDED SOLUTION
-This should follow from schattenNorm_rpow_eq_sum_singularValues. We have schattenNorm A p ^ p = ∑ σᵢ^p. Since the sum is nonneg (each σᵢ^p ≥ 0) and schattenNorm is nonneg, we can take p-th roots: schattenNorm A p = (∑ σᵢ^p)^{1/p}. Use Real.rpow_inv_eq or the fact that if x^p = y then x = y^{1/p} for nonneg x, y and p > 0.
--/
+/- The Schatten p-norm equals the ℓ^p quasi-norm of the singular values:
+    `‖A‖_p = (∑ σᵢ(A)^p)^{1/p}`. -/
 lemma schattenNorm_eq_sum_singularValues_rpow (A : Matrix d d ℂ) {p : ℝ} (hp : 0 < p) :
     schattenNorm A p = (∑ i : d, singularValues A i ^ p) ^ (1/p) := by
   rw [ ←schattenNorm_rpow_eq_sum_singularValues A hp ];

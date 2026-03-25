@@ -171,7 +171,7 @@ theorem PartitionZ_eq (hV : 0 < V) (hβ : 0 < β) :
     have h_gaussian :=
       GaussianFourier.integral_rexp_neg_mul_sq_norm (V := PiLp 2 (fun (_ : Fin n × Fin 3) ↦ ℝ)) (half_pos hβ)
     apply (Eq.trans ?_ h_gaussian).trans ?_
-    · have := (EuclideanSpace.volume_preserving_measurableEquiv (Fin n × Fin 3))
+    · have := EuclideanSpace.volume_preserving_symm_measurableEquiv_toLp (Fin n × Fin 3)
       rw [← this.integral_comp (MeasurableEquiv.measurableEmbedding _)]
       congr! 3 with x
       simp_rw [div_eq_inv_mul, ← Finset.mul_sum, ← mul_assoc, neg_mul, mul_comm, PiLp.norm_sq_eq_of_L2]

@@ -243,7 +243,7 @@ private theorem inner_zero_iff_aux_lemma [DecidableEq n] (hA₁ : A.mat.PosSemid
             simp_all only [Matrix.zero_apply, map_zero, mul_zero, add_zero, Finset.sum_const_zero]
         exact h_trace_zero_iff _;
       convert h_trace_zero_iff using 3
-      simp [ hC, hD, Matrix.mul_assoc ];
+      simp [ Matrix.mul_assoc ];
       rw [ ← Matrix.trace_mul_comm ]
       have h_trace_cyclic : Matrix.trace (D.conjTranspose * D * C.conjTranspose * C) = Matrix.trace (C * D.conjTranspose * D * C.conjTranspose) := by
         rw [ ← Matrix.trace_mul_comm ]
@@ -269,7 +269,7 @@ private theorem inner_zero_iff_aux_lemma [DecidableEq n] (hA₁ : A.mat.PosSemid
       ext i j
       specialize hAB_zero (EuclideanSpace.single j 1)
       have h1 := hAB_zero
-      simp only [LinearMap.mem_ker, Matrix.toEuclideanLin, Matrix.toLpLin_apply, Matrix.mulVec_mulVec] at h1
+      simp only [Matrix.toEuclideanLin, Matrix.toLpLin_apply, Matrix.mulVec_mulVec] at h1
       have h2 := congr_fun (congrArg WithLp.ofLp h1) i
       simp only [WithLp.ofLp_toLp, WithLp.ofLp_zero, EuclideanSpace.single] at h2
       simpa [Matrix.mul_apply, Matrix.mulVec, dotProduct, Pi.single_apply] using h2
@@ -494,10 +494,7 @@ theorem unitInterval_IsCompact : IsCompact {m : HermitianMat d 𝕜 | 0 ≤ m �
 theorem norm_one : ‖(1 : HermitianMat d 𝕜)‖ = √(Fintype.card d : ℝ) := by
   rw [norm_eq_sqrt_real_inner (F := HermitianMat d 𝕜)]
   congr 1
-  simp only [inner_def, mat_one, Matrix.one_apply, Matrix.trace, Matrix.diag_apply,
-    Matrix.mul_apply, star_one, one_mul, Finset.sum_ite_eq', Finset.mem_univ, ↑reduceIte,
-    map_one, Finset.sum_const, Finset.card_univ, smul_eq_mul, mul_one]
-  simp [selfadjMap]
+  simp [-inner_self_eq_norm_sq_to_K, inner_def]
 
 theorem norm_eq_trace_sq : ‖A‖ ^ 2 = (A.mat ^ 2).trace := by
   rw [norm_eq_frobenius, ← RCLike.ofReal_pow, ← Real.rpow_two, ← Real.rpow_mul (by positivity)]
