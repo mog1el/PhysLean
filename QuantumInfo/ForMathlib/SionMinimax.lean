@@ -3,13 +3,16 @@ Copyright (c) 2025 Alex Meiburg. All rights reserved.
 Released under MIT license as described in the file LICENSE.
 Authors: Alex Meiburg
 -/
+import Mathlib.Algebra.Order.Module.Field
 import Mathlib.Analysis.Convex.PathConnected
 import Mathlib.Analysis.Convex.Quasiconvex
 import Mathlib.Analysis.Convex.Topology
 import Mathlib.Analysis.Normed.Order.Lattice
-import Mathlib.Data.Fintype.Order
-import Mathlib.Topology.Semicontinuous
 import Mathlib.Analysis.SpecificLimits.Basic
+import Mathlib.Data.EReal.Operations
+import Mathlib.Data.Fintype.Order
+import Mathlib.Topology.Algebra.InfiniteSum.Order
+import Mathlib.Topology.MetricSpace.Bounded
 
 @[simp]
 theorem Set.image2_flip {α β γ : Type*} {f : α → β → γ} (s : Set α) (t : Set β) :

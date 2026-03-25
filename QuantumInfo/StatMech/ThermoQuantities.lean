@@ -109,14 +109,14 @@ theorem entropy_A_eq_entropy_Z (T β : ℝ) (hβT : T * β = 1) (hi : H.ZIntegra
   --Show the differentiability side-goals
   · rw [← one_div, ← hβT']
     have h₁ := hi.2
-    have := (DifferentiableAt_Z_if_ZIntegrable hi).differentiableAt (OrderTop.le_top 1)
+    have := (DifferentiableAt_Z_if_ZIntegrable hi).differentiableAt WithTop.top_ne_zero
     fun_prop (disch := assumption)
   · fun_prop (disch := assumption)
   · fun_prop
   · simp_rw [PartitionZT]
     rw [hβT'] at hi
     have := hi.2
-    have := (DifferentiableAt_Z_if_ZIntegrable hi).differentiableAt (OrderTop.le_top 1)
+    have := (DifferentiableAt_Z_if_ZIntegrable hi).differentiableAt WithTop.top_ne_zero
     fun_prop (disch := assumption)
 
 /--
@@ -132,12 +132,12 @@ theorem β_eq_deriv_S_U {β : ℝ} (hi : H.ZIntegrable d β) : β = (deriv (H.En
   --Show the differentiability side-goals
   have : DifferentiableAt ℝ (fun β => Real.log (H.PartitionZ d β)) β := by
     have := hi.2
-    have := (DifferentiableAt_Z_if_ZIntegrable hi).differentiableAt (OrderTop.le_top 1)
+    have := (DifferentiableAt_Z_if_ZIntegrable hi).differentiableAt WithTop.top_ne_zero
     fun_prop (disch := assumption)
   have : DifferentiableAt ℝ (deriv fun β => Real.log (H.PartitionZ d β)) β := by
     have this := (DifferentiableAt_Z_if_ZIntegrable hi).log hi.2
     replace this :=
-      (this.fderiv_right (m := ⊤) (OrderTop.le_top _)).differentiableAt (OrderTop.le_top _)
+      (this.fderiv_right (m := ⊤) (OrderTop.le_top _)).differentiableAt WithTop.top_ne_zero
     unfold deriv
     fun_prop
 
@@ -158,7 +158,7 @@ theorem β_eq_deriv_S_U {β : ℝ} (hi : H.ZIntegrable d β) : β = (deriv (H.En
 
 open scoped ContDiff in
 example (x : ℝ) (f : ℝ → ℝ) (hf : ContDiffAt ℝ ω f x) : DifferentiableAt ℝ (deriv f) x := by
-  have := (hf.fderiv_right (m := ⊤) (OrderTop.le_top _)).differentiableAt (OrderTop.le_top _)
+  have := (hf.fderiv_right (m := ⊤) (OrderTop.le_top _)).differentiableAt WithTop.top_ne_zero
   unfold deriv
   fun_prop
 
