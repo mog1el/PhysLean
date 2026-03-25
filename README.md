@@ -1,54 +1,162 @@
-# Quantum Information in Lean
+> [!NOTE]
+> Things look different? We've recently undergone a name change and move from /lean-phys-community/PhysLean
+> to /leanprover-community/physlib. Same repo, different location and name. This shouldn't affect
+> the average user, but please be patient as we update things.
 
-This repository aims to contain definitions and proofs of basic ideas in quantum information theory. Some major goals, in rough order of difficulty, would be:
- * Defining most notions of "distance", "entropy", "information", "capacity" that occur in the literature.
- * Showing that these reflect the classical notions where applicable
-   * For instance, that if you embed a clasical probability distribution as a quantum mixed state, then the _classical_ conditional entropy and the _quantum_ conditional entropy are the same number.
- * Strong sub-additivity of von Neumann entropy
- * Holevo's theorem
- * The [LSD theorem](https://en.wikipedia.org/wiki/Quantum_capacity#Hashing_bound_for_Pauli_channels) on quantum capacity
- * Non-additivity of quantum capacity
 
-All of this will be done only in the theory finite-dimensional Hilbert spaces. Reasons:
-* Most quantum information theory is done in this setting anyway. Not to say that the infinite-dimensional work isn't important, just that this is what more researchers spend their time thinking about.
-* Infinite-dimensional quantum theory can be [weirdly behaved](https://en.wikipedia.org/wiki/Connes_embedding_problem).
-* Dealing with infinite-dimensional quantum theory is just hard. You need e.g. trace-class operators, CTC functions, and people often can't even agree on the definitions. (For instance, does a mixed state necessarily have a finite spectrum? I've seen it both ways.)
+<div align="center">
+<img src="./docs/PhysLib-logo.jpeg" alt="PhysLean logo" width="500">
+</div>
 
-Most stuff is in the `QuantumInfo/Finite` folder. There was a _tiny_ bit of infinite-dimensional theory in the `QuantumInfo/InfiniteDim` folder, but it's mostly been cleared out.
 
-The docgen is available on [my website](https://ohaithe.re/Lean-QuantumInfo/QuantumInfo.html), hopefully I remember to keep it well synced.
+<div align="center">
 
-[comment]: # (Note to self, instructions for building docs: `rm -rf .lake/build/doc/QuantumInfo* .lake/build/doc/ClassicalInfo*; lake -R -Kenv=dev build ClassicalInfo:docs QuantumInfo:doc`. In order to view them, `cd .lake/build/doc; python3 -m http.server`.)
+## An open-source, community, project to digitalize results from physics into Lean 4
 
-Docmentation of the main definitions can be found at [DOC.md](./DOC.md). A majority of the work will be outlining the major definitions and theorems from Mark Wilde's _Quantum Information Theory_. A correspondence to the definitions and theorems (in the form of a todo-list) are in [TODO](./TODO.md)
 
-# Major Goal: Generalized Quantum Stein's Lemma
 
-At the moment, the major goal of this repository is completing a proof of the [Generalized Quantum Stein's Lemma](https://arxiv.org/abs/2408.02722v1), following the proof in that link. The first milestone will be to formalize all the arguments _in that paper_ (while relying on standard or "obvious" results), and then the second milestone will be filling in all those other results so that the whole theorem is sorry-free. The first milestone is, at the moment (October 2025), quite close.
+[![](https://img.shields.io/badge/Getting-Started-darkgreen)](https://physlean.com/GettingStarted.html)
+[![](https://img.shields.io/badge/The-Website-darkgreen)](https://physlean.com)
+[![](https://img.shields.io/badge/How_To-Get_Involved-darkgreen)](https://physlean.com/GetInvolved.html)
+[![](https://img.shields.io/badge/PhysLean_Zulip-Discussion-darkgreen)](https://leanprover.zulipchat.com/#narrow/channel/479953-PhysLean/)
+[![](https://img.shields.io/badge/TODO-List-darkgreen)](https://physlean.com/TODOList)
 
-See our report on the project at [this link](https://arxiv.org/abs/2510.08672).
+[![](https://img.shields.io/badge/PhysLean-Search-purple)](https://loogle.physlean.com)
+[![](https://img.shields.io/badge/PhysLean-Online-purple)](https://live.physlean.com)
 
-# Stats
+[![](https://img.shields.io/badge/View_The-Stats-blue)](https://physlean.com/Stats)
+[![](https://img.shields.io/badge/Lean-v4.28.0-blue)](https://github.com/leanprover/lean4/releases/tag/v4.28.0)
+[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/HEPLean/HepLean)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/HEPLean/PhysLean)
+[![api_docs](https://img.shields.io/badge/doc-API_docs-blue)](https://physlean.com/docs/)
 
-As of Sept 29 2025:
- * 1059 Theorems <!-- git grep -E "(^| )(theorem|instance|lemma) " | grep ".lean:" | wc -l -->
- * 248 Definitions <!-- git grep -E "(^| )(def|abbrev|irreducible_def) " | grep ".lean:" | wc -l -->
- * 13992 Lines of Code <!-- git ls-files | grep '\.lean' | xargs wc -l -->
+</div>
 
-This doesn't include various code snippets that have been upstreamed to Mathlib.
 
-# Attribution
+## Requirements of the project
 
-This repository is released under the MIT License, as found in the [LICENSE](./LICENSE) file. Please cite as:
+🎯 The project shall contain results (definitions, theorems, lemmas and calculations) from **physics**,
+  including quantum information, formalized (or **digitalized**) into the interactive theorem prover **Lean 4**.
+
+🎯 The project shall be **organized** by **physics**.
+
+🎯 Each definition in the project shall carry a physics-based **documentation**.
+
+🎯 Each module (file) in the project shall carry a physics-based **documentation**.
+
+🎯 The project shall contain Physics Lean **tactics**, **notation** and **syntax** for physicists.
+
+🎯 The project shall *not* be tied to physics axiomizations (e.g. axiomatic QFT), but rather flexiable enough to accommodate different approaches and starting points.
+
+🎯 The content of the project shall be carefully **reviewed** and curated, to ensure reusability, readability and fit.
+
+🎯 The project shall be completely open-source, community run and independent from any company or organization.
+
+🎯 The project shall not be tied to any specific AI model or tool.
+
+🎯 The project shall be for **main-stream** physics only.
+
+
+## Contributing to PhysLib
+
+PhysLib is open-source and community run, and we welcome contributions from anyone.
+All you need to do is open a pull-request with your changes
+and our team of maintainers will review it and iterate with you on feedback until it
+can be merged.
+
+If you unsure where you would like to contribute, you may find ideas on:
+- our [open issues](https://github.com/leanprover-community/physlib/issues).
+- our [todo list](https://physlean.com/TODOList)
+- our [Get Involved page](https://physlean.com/GetInvolved.html)
+> [!NOTE]
+> If stuck at any point there are lots of people happly to help on the [PhysLib zulip](https://leanprover.zulipchat.com/#narrow/channel/479953-PhysLib)
+
+### Installing Lean 4
+
+Installation instructions for Lean 4 can be found:
+
+- https://lean-lang.org/lean4/doc/quickstart.html
+
+or
+
+- https://leanprover-community.github.io/get_started.html
+
+### Installing PhysLib
+
+- Clone this repository (or download the repository as a Zip file)
+- Open a terminal at the top-level in the corresponding directory.
+- Run `lake exe cache get`. The command `lake` should have been installed when you installed Lean.
+- Run `lake build`.
+- Open the directory (not a single file) in Visual Studio Code (or another Lean compatible code editor).
+
+### Making a pull-request
+
+There are lots of guides on how to make a pull-request on GitHub. The first thing you
+need to do is fork the repository. Once you've made your pull request we will review it:
+- Guide to [PhysLib reviews](https://github.com/leanprover-community/physlib/blob/master/docs/ReviewGuidelines.md).
+It will also undergo a number of automated checks called linters. Sometimes these are easier
+to run locally:
+- Guide to [linters and running them locally](https://github.com/leanprover-community/physlib/blob/master/scripts/README.md).
+
+Most importantly:
+> [!NOTE]
+> When making contributing to PhysLib it is much better to do it with small steps. This makes it easier for us to review, and allows you to get feedback sooner.
+
+## Maintainers
+
+Below are the maintainers of the project, however the best way to reach them is by posting
+on the [Lean Zulip](https://leanprover.zulipchat.com/#narrow/channel/479953-PhysLib)
+
+- Léo Lessa (@Megaleo)
+- Alex Meiburg (@Timeroot)
+- Daniel Morrison (@morrison-daniel)
+- Zhi-Kai Pong (@zhikaip)
+- Rodolfo Soldati (@rodolfor-s)
+- Joseph Tooby-Smith (@jstoobysmith)
+- Winston Yin (@winstonyin)
+
+## Citing the project
+
+If you want to cite the project as a whole please cite:
 
 ```
-@misc{meiburg2024quantuminfo,
-  author = {Meiburg, Alex},
-  title = {Quantum Information in Lean},
+@misc{physlib,
+  author = {The PhysLib community},
+  title = {PhysLib: The Lean Physics Library},
   year = {2024},
   publisher = {GitHub},
   journal = {GitHub repository},
-  howpublished = {\url{https://github.com/Timeroot/Lean-QuantumInfo}},
+  howpublished = {\url{https://github.com/leanprover-community/physlib}},
 }
 ```
-or cite [the report](https://arxiv.org/abs/2510.08672) for the Stein's Lemma work in particular. Thanks to all contributors, especially Leonardo Lessa and Rodolfo Soldati.
+
+PhysLib was formed by merging the general physics Lean library PhysLean (formerly called HepLean)
+with the quantum-information library Lean-QuantumInfo. Where appropriate please also consider
+citing the papers associated with the origin of these projects. For the former please use:
+```
+@article{Tooby-Smith:2024vqu,
+    author = "Tooby-Smith, Joseph",
+    title = "{HepLean: Digitalising high energy physics}",
+    eprint = "2405.08863",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    doi = "10.1016/j.cpc.2024.109457",
+    journal = "Comput. Phys. Commun.",
+    volume = "308",
+    pages = "109457",
+    year = "2025"
+}
+```
+and for the latter please use:
+
+```
+@article{Meiburg:2025mwn,
+    author = "Meiburg, Alex and Lessa, Leonardo A. and Soldati, Rodolfo R.",
+    title = "{A Formalization of the Generalized Quantum Stein's Lemma in Lean}",
+    eprint = "2510.08672",
+    archivePrefix = "arXiv",
+    primaryClass = "quant-ph",
+    month = "10",
+    year = "2025"
+}
+```
