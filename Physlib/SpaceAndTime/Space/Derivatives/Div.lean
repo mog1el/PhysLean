@@ -41,6 +41,8 @@ properties about it.
 
 @[expose] public section
 
+open Physlib
+
 namespace Space
 
 variable {W} [NormedAddCommGroup W] [NormedSpace ℝ W]

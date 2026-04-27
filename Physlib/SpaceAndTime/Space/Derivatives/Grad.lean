@@ -56,6 +56,8 @@ of the input function with respect to each spatial coordinate.
 
 @[expose] public section
 
+open Physlib
+
 namespace Space
 
 /-!
