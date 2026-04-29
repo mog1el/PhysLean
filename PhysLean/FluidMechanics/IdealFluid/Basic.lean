@@ -81,16 +81,16 @@ noncomputable def surfaceIntegral (V: FluidVolume) (flux: Space → EuclideanSpa
 /-- Mass flow out of volume -/
 noncomputable def massFlowOut (F: IdealFluid) (t: Time) (V: FluidVolume):
     ℝ :=
-      surfaceIntegral V (fun pos => IdealFluid.massFluxDensity F t pos)
+      surfaceIntegral V (IdealFluid.massFluxDensity F t ·)
 
 /-- Entropy flow out of volume -/
 noncomputable def entropyFlowOut (F: IdealFluid) (t: Time) (V: FluidVolume):
     ℝ :=
-      surfaceIntegral V (fun pos => IdealFluid.entropyFluxDensity F t pos)
+      surfaceIntegral V (IdealFluid.entropyFluxDensity F t ·)
 
 /-- Energy flow out of volume -/
 noncomputable def energyFlowOut (F: IdealFluid) (t: Time) (V: FluidVolume):
     ℝ :=
-      surfaceIntegral V (fun pos => IdealFluid.energyFluxDensity F t pos)
+      surfaceIntegral V (IdealFluid.energyFluxDensity F t ·)
 
 end IdealFluid

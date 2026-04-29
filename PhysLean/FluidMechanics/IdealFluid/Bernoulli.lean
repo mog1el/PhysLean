@@ -24,14 +24,21 @@ open Space
 /-- Determines whether a flow is steady -/
 def IdealFluid.isSteady (F: IdealFluid) :
     Prop :=
-      ∀ (t : Time) (pos : Space),
-      ∂ₜ (fun t' => F.velocity t' pos) t = (0 : EuclideanSpace ℝ (Fin 3))
+      ∀ (pos : Space),
+      ∂ₜ (F.velocity · pos) = 0
+
+/-- Definition of a material derivative -/
+noncomputable def IdealFluid.materialDerivative (t: Time) (pos: Space)
+(F: IdealFluid) (f: Time → Space → ℝ) :
+    ℝ :=
+      ∂ₜ (f · pos) t +
+      ⟪F.velocity t pos, ∇ (f t ·) pos ⟫_ℝ
 
 /-- Determines whether a flow is isentropic -/
 def IdealFluid.isIsentropic (F: IdealFluid):
     Prop :=
       ∀ (t: Time) (pos: Space),
-      ∂ₜ (fun t' => F.entropy t' pos) t = (0 : ℝ)
+      F.materialDerivative t pos F.entropy = 0
 
 -- TODO: Make into material derivative
 
@@ -42,7 +49,7 @@ noncomputable def IdealFluid.bernoulliEquation (F: IdealFluid)
       let v := F.velocity t pos
       0.5 * ⟪v, v⟫_ℝ + F.enthalpy t pos + g pos
 
--- TODO: Recheck signs
+-- TODO: Recheck sign
 
 /-- Derivation:
   If the flow is steady and isentropic, the bernoulli equation is constant
@@ -52,6 +59,6 @@ theorem bernoulli_derivation (F : IdealFluid) (g : Space → ℝ) (t : Time) (po
     (Stdy : F.isSteady)
     (Istrpc : F.isIsentropic) :
     let v := F.velocity t pos
-    ⟪v, Space.grad (fun pos' => F.bernoulliEquation t pos' g) pos⟫_ℝ = 0 :=
+    ⟪v, Space.grad (F.bernoulliEquation t · g) pos⟫_ℝ = 0 :=
       by
         sorry
