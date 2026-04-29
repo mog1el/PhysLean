@@ -1,0 +1,41 @@
+/-
+Copyright (c) 2026 Michał Mogielnicki. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Michał Mogielnicki
+-/
+
+module
+
+public import Physlib.FluidMechanics.IdealFluids.Basic
+public import Physlib.Mathematics.Calculus.Divergence
+public import Physlib.SpaceAndTime.Time.Derivatives
+public import Physlib.SpaceAndTime.Space.Derivatives.Div
+
+/-!
+This module introduces the continuity criterium.
+There is potential to add various different lemmas expanding on this.
+-/
+
+open scoped InnerProductSpace
+open Time
+open Space
+
+/-- defining satisfying the equation of continuity -/
+public def IdealFluid.satisfiesContinuity (F : IdealFluid):
+    Prop :=
+      ∀ (t : Time) (pos : Space),
+      ∂ₜ (F.density · pos) t +
+      Space.div (F.massFluxDensity t ·) pos = (0 : ℝ)
+
+/-- Criterion for incompressibility -/
+public def IdealFluid.isIncompressible (F : IdealFluid):
+    Prop :=
+      ∀ (t : Time) (pos : Space), ∂ₜ (F.density · pos) t = 0
+
+/-- Theorem: If constant density and incompressible div(v)=0-/
+theorem incompress_const_density_implies_div_v_eq_zero (F : IdealFluid)
+    (Cont      : F.satisfiesContinuity)
+    (Incomp    : F.isIncompressible)
+    (ConstDens : ∀ (t : Time) (pos : Space), Space.grad (F.density t ·) pos = 0) :
+    ∀ (t : Time) (pos : Space), Space.div (F.velocity t ·) pos = 0 := by
+      sorry
